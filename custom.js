@@ -39,7 +39,7 @@ var categoricalCellRenderer = LineUpJS.renderer.createRenderer('g.my', function 
   });
 
 //expecting in the column an object with { mean, min, max} in the range 0...100
-var MyColumn = LineUpJS.model.defineColumn({
+var MyColumn = LineUpJS.model.defineColumn('Custom', {
   compare: function (a, b) {
       return this.getValue(a).mean - this.getValue(b).mean;
   }
