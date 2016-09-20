@@ -28,3 +28,7 @@ div.lu {
   padding: 0;
   overflow: auto;
 }
+
+path.shift {
+  stroke: black;
+}

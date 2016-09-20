@@ -1,4 +1,4 @@
-/*! LineUpJS - v0.4.1 - 2016-09-15
+/*! LineUpJS - v0.4.1 - 2016-09-20
 * https://github.com/sgratzl/lineup.js
 * Copyright (c) 2016 ; Licensed BSD */
 
@@ -2846,6 +2846,29 @@ var Ranking = (function (_super) {
 }(utils.AEventDispatcher));
 exports.Ranking = Ranking;
 /**
+ * defines a new column type
+ * @param name
+ * @param functions
+ * @returns {CustomColumn}
+ */
+function defineColumn(name, functions) {
+    if (functions === void 0) { functions = {}; }
+    var CustomColumn = (function (_super) {
+        __extends(CustomColumn, _super);
+        function CustomColumn(id, desc) {
+            _super.call(this, id, desc);
+            if (typeof (this.init) === 'function') {
+                this.init.apply(this, [].slice.apply(arguments));
+            }
+        }
+        return CustomColumn;
+    }(ValueColumn));
+    CustomColumn.prototype.toString = function () { return name; };
+    CustomColumn.prototype = utils.merge(CustomColumn.prototype, functions);
+    return CustomColumn;
+}
+exports.defineColumn = defineColumn;
+/**
  * utility for creating a stacked column description
  * @type {function(string=): {type: string, label: string}}
  */
@@ -4495,6 +4518,23 @@ var StackCellRenderer = (function (_super) {
     };
     return StackCellRenderer;
 }(DefaultCellRenderer));
+/**
+ * defines a custom renderer object
+ * @param selector d3 selector, e.g. text.my
+ * @param render render function
+ * @param extras additional functions
+ * @returns {DerivedCellRenderer}
+ */
+function createRenderer(selector, render, extras) {
+    var _this = this;
+    if (extras === void 0) { extras = {}; }
+    extras.selector = selector;
+    extras.render = render;
+    extras.findRow = function ($col, index) { return $col.selectAll(_this.selector + '[data-index="' + index + '"]'); };
+    var r = new DerivedCellRenderer(extras);
+    return r;
+}
+exports.createRenderer = createRenderer;
 var combineRenderer = barRenderer({
     colorOf: function (d, i, col) { return col.getColor(d); }
 });
