@@ -1,37 +1,77 @@
+<!doctype html>
 
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>D3 Demo: 5-div bar chart</title>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.7/d3.js"></script>
-		<style type="text/css">
+<title>Sparklines in d3.js</title>
+<style>
+  .sparkline path {
+    stroke: #000;
+    stroke-width: #000;
+    fill: none;
+  }
+</style>
 
-			div.bar {
-				display: inline-block;
-				width: 20px;
-				height: 75px;	/* Gets overriden by D3-assigned height below */
-				margin-right: 2px;
-				background-color: teal;
-			}
+<h1>Sparklines in d3.js</h1>
 
-		</style>
-	</head>
-	<body>
-		<script type="text/javascript">
 
-			var dataset = [ 5, 10, 15, 20, 25 ];
+<div id="data"></div>
 
-			d3.select("body").selectAll("div")
-				.data(dataset)
-				.enter()
-				.append("div")
-				.attr("class", "bar")
-				.style("height", function(d) {
-					var barHeight = d * 5;
-					return barHeight + "px";
-				});
+<button>update</button>
 
-		</script>
-	</body>
-</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
+<script>
+if(typeof d3 === 'undefined') { throw "d3.js is required for this demo" }
+//var data = [3, 6, 2, 7, 5, 9];
+var data = function(){
+  // Get us some dummy data. Adjust these two paramaters and everything
+  // should be auto-scaled to fit.
+  var numberOfEntries = 10,
+      maxValue = 9,
+      i, _i, out = [];
+  for(i=0, _i=numberOfEntries; i<_i; i++){
+    out.push(Math.round(Math.random() * maxValue));
+  }
+  console.log(out);
+  return out;
+};
+
+var sparkline = function(el, options){
+	console.log(options.data || [])
+  var data =  [3, 6, 2, 7, 5, 19];
+	console.log(data);
+	var width = options.width || 100,
+      height = options.height || 10,
+     // data = options.data || [],
+
+      svg = d3.select(el)
+        .append('svg:svg')
+          .attr('width', width)
+          .attr('height', height)
+          .attr('class', 'sparkline'),
+      maxY = d3.max(data),
+      x = d3.scale.linear().domain([0, data.length]).range([0, width]),
+      y = d3.scale.linear().domain([0, maxY]).range([height, 0]), // flipped so zero is along the bottom
+      line = d3.svg.line()
+        .interpolate('linear')
+        .x(function(d, i) { return x(i); })
+        .y(function(d, i) { return y(d); }),
+      path = svg.append('svg:path')
+        .data([data])
+        .attr('d', line);
+
+  return {
+    update: function(newData){
+      path.data([newData])
+        .transition()
+        .duration(500)
+        .ease('linear')
+        .attr('d', line);
+    }
+  }
+}
+window.addEventListener('DOMContentLoaded', function(){
+  sparky = sparkline('#data', { data: data() });
+  document.getElementsByTagName('button')[0].addEventListener('click', function(){
+    sparky.update(data());
+  }, false);
+}, false);
+</script>
+

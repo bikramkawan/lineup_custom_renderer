@@ -69,11 +69,11 @@ var MyColumn = LineUpJS.model.defineColumn('Custom', {
 });
 
 
-var MyColumn2 = LineUpJS.model.defineColumn('Custom', {
-    compare: function (a, b) {
-        return this.getValue(a).mean - this.getValue(b).mean;
-    }
-});
+// var MyColumn2 = LineUpJS.model.defineColumn('Custom', {
+//     compare: function (a, b) {
+//         return this.getValue(a).mean - this.getValue(b).mean;
+//     }
+// });
 
 // console.log(MyColumn1);
 
@@ -111,10 +111,12 @@ var myCellRenderer = LineUpJS.renderer.createRenderer('path.shift', function ($c
 
 
 var myCellRenderer2 = LineUpJS.renderer.createRenderer('g.my', function ($col, col, rows, context) {
-    var colors = ['#27AE60', '#f4ee42', '#42f48f', '#f45942', '#2980B9'];
+    var p=d3.scale.category20();
+    var colors=p.range();
+    //var colors = ['#27AE60', '#f4ee42', '#42f48f', '#f45942', '#2980B9'];
     var height = 5;
     var width = [];
-    var y = 0;
+    var y = 3;
     var scale = d3.scale.linear().range([0, 100]); // Constraint the window width
     var max = 0;
 
@@ -165,4 +167,43 @@ var myCellRenderer2 = LineUpJS.renderer.createRenderer('g.my', function ($col, c
     });
     $rows.exit().remove();
 });
+
+var myCellRenderer3 = LineUpJS.renderer.createRenderer('path.shift', function ($col, col, rows, context) {
+    var $rows = $col.datum(col).selectAll('path.shift').data(rows, context.rowKey);
+    var $rows_enter = $rows.enter().append('path').attr({
+        'class': 'shift',
+        'data-index': function (d, i) {
+            return i;
+        },
+        transform: function (d, i) {
+            return 'translate(' + context.cellX(i) + ',' + context.cellPrevY(i) + ')';
+        }
+    });
+
+   var data = [3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9, 3, 6, 3, 6, 2, 7, 5, 9, 3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9];
+
+
+    maxY = d3.max(data),
+    x = d3.scale.linear().domain([0, data.length]).range([0, 100]);
+    y = d3.scale.linear().domain([0, maxY]).range([10, 0]);
+		// X scale will fit values from 0-10 within pixels 0-100
+
+		// create a line object that represents the SVN line we're creating
+		var line = d3.svg.line()
+			// assign the X function to plot our line as we wish
+			 //.interpolate('linear')
+        .x(function(d, i) { return x(i); })
+        .y(function(d, i) { return y(d); })
+
+    $rows.attr('d', line(data));
+
+
+    context.animated($rows).attr({
+        transform: function (d, i) {
+            return 'translate(' + context.cellX(i) + ',' + context.cellY(i) + ')';
+        }
+    });
+    $rows.exit().remove();
+});
+
 

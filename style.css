@@ -30,5 +30,6 @@ div.lu {
 }
 
 path.shift {
-  stroke: black;
+  stroke: red;
+  fill:none
 }
